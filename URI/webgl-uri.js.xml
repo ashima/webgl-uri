@@ -41,7 +41,7 @@
   };
 
   // whitespace or a block comment (maybe spanning lines)
-  var ws = "(?:[ \\t]+|/\\*[\\s\\S]*?\\*/)";
+  var ws = "(?:[ \\t]+|/\\*(?:[\\s\\S](?!\\*/)*|[\\s\\S]\\*/))";
   var uri_id = "<(.*?:.*?)>";
   var uri_id_re = function(khronos) {
     return "<"+uri_of_khronos[khronos].replace(/\./g,"\\.")+">";
@@ -85,12 +85,11 @@
       }
 
       return src.replace(dir,function(str) {
-        var pptok = str.split(new RegExp(ws));
-        var ppws  = str.match(new RegExp(ws));
-          console.log(pptok); console.log(ppws);
+        var pptok = str.split(new RegExp(ws,"gm"));
+        var ppws  = str.match(new RegExp(ws,"gm"));
         var s = "";
         for (var i = 0; i < pptok.length; i++) {
-          s += pptok[i].replace(new RegExp(uri_id),function(id,uri) {
+            s += pptok[i].replace(new RegExp(uri_id,"gm"),function(id,uri) {
             var khronos = khronos_of_uri[uri];
             notify_use();
             if (khronos) { return " "+khronos+" "; }
@@ -104,7 +103,7 @@
       "require": use_uri(function() {}),
       "enable": use_uri(function() {}),
       "warn": use_uri(function() {
-          // what is the proper way to shim these warnings?
+          // TODO: what is the proper way to shim these warnings?
           if (console && console.log) {
             console.log("GLSL warning: URI in use.");
           }
@@ -119,13 +118,11 @@
     var uri_ish = "(?:"+uri_sym+"|"+uri_id_re(uri_ext)+"|"+all_sym+")";
     var uri_blocks = source.split(xdir(uri_ish,false));
     var uri_decls = source.match(xdir(uri_ish,false));
-      console.log(uri_blocks);
-      console.log(xdir(uri_ish,false).source);
-      console.log(uri_decls);
     var src = uri_blocks[0];
     for (var i = 1; i < uri_blocks.length; i++) {
       var p = xdir(uri_ish,true).exec(uri_decls[i-1]);
       if ((/all/i).test(p[1])) { src += uri_decls[i-1]; }
+      else { src += uri_decls[i-1].replace(/./gm,""); }
       src += bi[p[2]](uri_decls[i-1],uri_blocks[i]);
       lastb = lastbp?lastb:p[2];
       lastbp = false;
