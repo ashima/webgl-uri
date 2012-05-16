@@ -3,13 +3,13 @@
 <proposal href="URI/">
   <name>URI</name>
   <contact>
-    <a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)
+    <!--<a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)-->
   </contact>
   <contributors>
     <contributor>David Sheets &lt;<a href="mailto:sheets@ashimaarts.com">sheets@ashimaarts.com</a>&gt;</contributor>
     <contributor>Ian McEwan &lt;<a href="mailto:ijm@ashimaarts.com">ijm@ashimaarts.com</a>&gt;</contributor>
   </contributors>
-  <number>&#x3c9;</number>
+  <number><!--&#x3c9;--></number>
   <depends>
     <api version="1.0" />
     <glsl flavor="ES 2.0" version="1.0" revision="17" />
@@ -24,7 +24,6 @@
     </div>
     <features> <!-- a list of features in XHTML -->
       <feature>URI, a new preprocessor token type, acts as a preprocessor identifier.</feature>
-      <feature>A mapping from URIs in the HTTP scheme to official Khronos WebGL extensions is supported.</feature>
       <feature><code>getSupportedExtensions()</code> returns at least the URIs corresponding to official Khronos WebGL extensions that are available.</feature>
       <feature><code>getExtension(name)</code> accepts at least the URIs corresponding to official Khronos WebGL extensions that are available.</feature>
       <feature>
@@ -36,7 +35,7 @@
 
     <div>
       <p>
-        URI preprocessor identifiers can be identified by the regular expression production rule:<br />
+        URI preprocessor identifiers can be matched by the regular expression production rule:<br />
       <code>
 identifier-URI = "&lt;" .*? ":" .*? "&gt;"
       </code>
