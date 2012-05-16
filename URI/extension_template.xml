@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<draft href="URI/">
+<proposal href="URI/">
   <name>URI</name>
   <contact>
     <a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)
@@ -36,9 +36,9 @@
 
     <div>
       <p>
-        URI preprocessor identifiers can be identified by the following production rule:<br />
+        URI preprocessor identifiers can be identified by the regular expression production rule:<br />
       <code>
-identifier-URI = "&lt;" .* ":" .* "&gt;"
+identifier-URI = "&lt;" .*? ":" .*? "&gt;"
       </code>
       </p>
 
@@ -68,7 +68,7 @@ identifier-URI = "&lt;" .* ":" .* "&gt;"
   </overview>
 
   <idl>interface URI { };</idl>
-
+<!--
   <tests>
     The following table specifies source translations from absolute URI references to Khronos WebGL extensions.
 
@@ -81,7 +81,8 @@ identifier-URI = "&lt;" .* ":" .* "&gt;"
             <td><pre id="uri_simple">#version/*!*/101 // trail
 #extension &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt; : disable
 #extension URI : enable // tt
-#pragma META &lt;http://www.example.com/&gt;
+#pragma META/*
+*/&lt;http://www.example.com/&gt;
 #ifdef &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt;
 #ifdef &lt;http://www.example.com/&gt;
 #extension &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt; : disable
@@ -94,6 +95,11 @@ identifier-URI = "&lt;" .* ":" .* "&gt;"
 */:/*
 */enable
 #extension &lt;http://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/&gt; : disable
+#extension all : disable
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/&gt; : disable
+#extension all : warn
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/&gt; : disable
+#ifdef/*~*/&lt;http://foo.bar.com/&gt;
 other source</pre></td>
           </tr>
           <tr>
@@ -255,10 +261,10 @@ other source</pre></td>
       }
     </script>
   </tests>
-
+-->
   <history>
     <revision date="2012/05/15">
       <change>Initial draft.</change>
     </revision>
   </history>
-</draft>
+</proposal>
