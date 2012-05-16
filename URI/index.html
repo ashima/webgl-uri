@@ -12,7 +12,7 @@
 <p>URI</p>
 <h2 class="no-toc">Contact</h2>
 <p>
-    <a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)
+    <!--<a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)-->
   </p>
 <h2 class="no-toc">Contributors</h2>
 <p>David Sheets &lt;<a href="mailto:sheets@ashimaarts.com">sheets@ashimaarts.com</a>&gt;</p>
@@ -21,7 +21,7 @@
 <p> Last modified date: May 15, 2012<br>
           Revision: 2</p>
 <h2 class="no-toc">Number</h2>
-<p> WebGL extension #ω</p>
+<p> WebGL extension #</p>
 <h2 class="no-toc">Dependencies</h2>
     <p> Written against the <a href="http://www.khronos.org/registry/webgl/specs/1.0/">WebGL API 1.0</a> specification. </p>
     <p> Written against the <a href="http://www.khronos.org/registry/gles/specs/2.0/GLSL_ES_Specification_1.0.17.pdf">
@@ -39,7 +39,6 @@
     <p> When this extension is enabled: </p>
 <ul>
 <li>URI, a new preprocessor token type, acts as a preprocessor identifier.</li>
-<li>A mapping from URIs in the HTTP scheme to official Khronos WebGL extensions is supported.</li>
 <li>
 <code>getSupportedExtensions()</code> returns at least the URIs corresponding to official Khronos WebGL extensions that are available.</li>
 <li>
@@ -51,7 +50,7 @@
 
     <div>
       <p>
-        URI preprocessor identifiers can be identified by the regular expression production rule:<br>
+        URI preprocessor identifiers can be matched by the regular expression production rule:<br>
       <code>
 identifier-URI = "&lt;" .*? ":" .*? "&gt;"
       </code>
