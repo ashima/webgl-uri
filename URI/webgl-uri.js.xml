@@ -1,0 +1,145 @@
+<script><![CDATA[
+(function() {
+  var khronos_of_uri = ]]><include src="webgl-uri.json.xml" /><![CDATA[;
+  var uri_of_khronos = {};
+  for (var uri in khronos_of_uri) {
+    uri_of_khronos[khronos_of_uri[uri]] = uri; // iso
+  }
+
+  var uri_ext = "URI";
+  var proto = WebGLRenderingContext.prototype;
+
+  var getExtension = proto.getExtension;
+  proto.getExtension = function(name) {
+    var n = name.toUpperCase();
+    var uri_enabled = false || (this.__exts__ && this.__exts__[uri_ext]);
+    if (this.isContextLost()) { return null; }
+    if (!this.__exts__) { this.__exts__ = {}; }
+    // where is case insensitivity specified?
+    if (n==uri_ext || n=="HTTP"
+        || (uri_enabled && khronos_of_uri[name]==uri_ext)) {
+      if (!this.__exts__[n]) { this.__exts__[n] = {}; }
+      return this.__exts__[n];
+    } else if (uri_enabled && khronos_of_uri[name]) {
+      return getExtension.call(this,khronos_of_uri[name]);
+    } else { return getExtension.call(this,name); }
+  };
+
+  var getSupportedExtensions = proto.getSupportedExtensions;
+  proto.getSupportedExtensions = function() {
+    var uri;
+    var exts = getSupportedExtensions.call(this);
+    exts.push(uri_ext);
+    var extsl = exts.length;
+    if (this.__exts__ && this.__exts__[uri_ext]) {
+      for (var i=0; i < extsl; i++) {
+        uri = uri_of_khronos[exts[i]];
+        if (uri) { exts.push(uri); }
+      }
+    }
+    return exts;
+  };
+
+  // whitespace or a block comment (maybe spanning lines)
+  var ws = "(?:[ \\t]+|/\\*[\\s\\S]*?\\*/)";
+  var uri_id = "<(.*?:.*?)>";
+  var uri_id_re = function(khronos) {
+    return "<"+uri_of_khronos[khronos].replace(/\./g,"\\.")+">";
+  };
+  var all_sym = "[Aa][Ll][Ll]";
+  var uri_sym = "[Uu][Rr][Ii]"; // URI
+  var uri_macro_decl = "#define "+uri_ext+" 1\n#line 1\n";
+  var vdir = new RegExp
+    ("^"+ws+"*#"+ws+"*version"+ws+"+(\\d+)"+ws+"*(?://.*)?$","gm");
+  var xdir = function (sym,capture) {
+    var behavior = capture?"([a-z]+)":"[a-z]+";
+    sym = capture?"("+sym+")":sym;
+    return (new RegExp
+      ("^"+ws+"*#"+ws+"*extension"+ws+"+"+sym+ws+"*:"
+       +ws+"*"+behavior+ws+"*(?://.*)?$","gm"));
+  };
+  var dir = new RegExp("^"+ws+"*#(?:"+ws+"|\\S)*$","gm");
+
+  proto.prepareSource = function(source) {
+    // declare the URI extension availability global macro while respecting
+    // the version directive
+    source = uri_macro_decl + source;
+    if (vdir.test(source)) {
+      var v; // hoists but shh
+      source = source.replace(vdir,function(str,p1) {
+        v = p1;
+        return "/*"+str.replace(/\*\//,"*\\/")+"*/";
+      });
+      source = "#version "+v+"\n" + source
+    }
+
+    // URI extension scoping
+    // (source locations and conditional URI behaviors are not handled)
+    var lastb = "disable";
+    var lastbp = false;
+    function use_uri(notify_use) { return function(decl,src) {
+      if (xdir(uri_id_re(uri_ext),false).test(decl)
+          && lastb == "disable") {
+        lastbp = true;
+        return bi.disable(decl,src);
+      }
+
+      return src.replace(dir,function(str) {
+        var pptok = str.split(new RegExp(ws));
+        var ppws  = str.match(new RegExp(ws));
+          console.log(pptok); console.log(ppws);
+        var s = "";
+        for (var i = 0; i < pptok.length; i++) {
+          s += pptok[i].replace(new RegExp(uri_id),function(id,uri) {
+            var khronos = khronos_of_uri[uri];
+            notify_use();
+            if (khronos) { return " "+khronos+" "; }
+            return " _FRESH/*"+id+"*/";
+          }) + (i > (ppws.length - 1) ? "" : ppws[i]);
+        }
+        return s;
+      });
+    };}
+    var bi = { // source stream behavior interpreter
+      "require": use_uri(function() {}),
+      "enable": use_uri(function() {}),
+      "warn": use_uri(function() {
+          // what is the proper way to shim these warnings?
+          if (console && console.log) {
+            console.log("GLSL warning: URI in use.");
+          }
+      }),
+      "disable": function(decl,src) {
+        if (xdir(uri_id_re(uri_ext),false).test(decl)
+            && lastb=="disable") { return decl+src; }
+        else { return src; }
+      }
+    };
+
+    var uri_ish = "(?:"+uri_sym+"|"+uri_id_re(uri_ext)+"|"+all_sym+")";
+    var uri_blocks = source.split(xdir(uri_ish,false));
+    var uri_decls = source.match(xdir(uri_ish,false));
+      console.log(uri_blocks);
+      console.log(xdir(uri_ish,false).source);
+      console.log(uri_decls);
+    var src = uri_blocks[0];
+    for (var i = 1; i < uri_blocks.length; i++) {
+      var p = xdir(uri_ish,true).exec(uri_decls[i-1]);
+      if ((/all/i).test(p[1])) { src += uri_decls[i-1]; }
+      src += bi[p[2]](uri_decls[i-1],uri_blocks[i]);
+      lastb = lastbp?lastb:p[2];
+      lastbp = false;
+    }
+    return src;
+  };
+
+  var shaderSource = proto.shaderSource;
+  proto.shaderSource = function(shader, source) {
+    if (this.__exts__ && this.__exts__[uri_ext]) {
+      return shaderSource.call(this,shader,this.prepareSource(source));
+    } else {
+      return shaderSource.call(this,shader,source);
+    }
+  };
+})();
+]]></script>

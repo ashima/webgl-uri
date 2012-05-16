@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+
+<draft href="URI/">
+  <name>URI</name>
+  <contact>
+    <a href="https://www.khronos.org/webgl/public-mailing-list/">WebGL working group</a> (public_webgl 'at' khronos.org)
+  </contact>
+  <contributors>
+    <contributor>David Sheets &lt;<a href="mailto:sheets@ashimaarts.com">sheets@ashimaarts.com</a>&gt;</contributor>
+    <contributor>Ian McEwan &lt;<a href="mailto:ijm@ashimaarts.com">ijm@ashimaarts.com</a>&gt;</contributor>
+  </contributors>
+  <number>&#x3c9;</number>
+  <depends>
+    <api version="1.0" />
+    <glsl flavor="ES 2.0" version="1.0" revision="17" />
+    <rfc number="3986" />
+  </depends>
+  <overview>
+    <!-- normal free-form XHTML is allowed here -->
+    <div class="nonnormative">
+      <p>
+        This extension defines the relationship between <rfc number="3986"/> URIs, the World Wide Web's namespace, and WebGL.
+      </p>
+    </div>
+    <features> <!-- a list of features in XHTML -->
+      <feature>URI, a new preprocessor token type, acts as a preprocessor identifier.</feature>
+      <feature>A mapping from URIs in the HTTP scheme to official Khronos WebGL extensions is supported.</feature>
+      <feature><code>getSupportedExtensions()</code> returns at least the URIs corresponding to official Khronos WebGL extensions that are available.</feature>
+      <feature><code>getExtension(name)</code> accepts at least the URIs corresponding to official Khronos WebGL extensions that are available.</feature>
+      <feature>
+        <glsl>
+          <macro name="URI" value="1" />
+        </glsl>
+      </feature>
+    </features>
+
+    <div>
+      <p>
+        URI preprocessor identifiers can be identified by the following production rule:<br />
+      <code>
+identifier-URI = "&lt;" .* ":" .* "&gt;"
+      </code>
+      </p>
+
+      <p>
+        The following <a href="webgl-uri.json">map</a> should be used to resolve URI extension identifiers to official Khronos WebGL extensions:
+      </p>
+      
+      <template src="registry.xml" name="uri_to_khronos" />
+
+      <p>
+        When <b>URI</b> is enabled, absolute URI references can be used in GLSL preprocessor extension directives as extension names.
+      </p>
+
+      <p>
+        The same representation should be used in other preprocessor directives such as <code>#ifdef</code> to test for an implementation's support for the URI-identified extension or <code>#pragma</code> to reference shader comment metadata formats.
+      </p>
+
+      <p>
+        <b>URI</b> is a preprocessor extension and requires preprocessor integration.
+      </p>
+
+      <p>Implementations are not expected or required to use the URI identifying an extension as a locator for a network resource.
+      </p>
+
+    </div>
+
+  </overview>
+
+  <idl>interface URI { };</idl>
+
+  <tests>
+    The following table specifies source translations from absolute URI references to Khronos WebGL extensions.
+
+    <table id="uri_ext_to_khronos_ext">
+      <tr>
+        <th>Simple use</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+            <td><pre id="uri_simple">#version/*!*/101 // trail
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt; : disable
+#extension URI : enable // tt
+#pragma META &lt;http://www.example.com/&gt;
+#ifdef &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt;
+#ifdef &lt;http://www.example.com/&gt;
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/OES_texture_float/&gt; : disable
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/URI/&gt; : disable
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/URI/&gt; : enable
+/*
+*/#/*
+*/extension/*
+*/URI/*
+*/:/*
+*/enable
+#extension &lt;http://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/&gt; : disable
+other source</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+            <td><pre id="khronos_simple">#extension URI : enable
+#extension URI : disable</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_simple" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>With more whitespace</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+        <td><pre id="uri_ws"> # extension http : /* //www.khronos.org/registry/webgl/extensions/URI/ */ enable</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+            <td><pre id="khronos_ws"> # extension URI : /* //www.khronos.org/registry/webgl/extensions/URI/ */ enable</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_ws" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>With extra commentary</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+            <td><pre id="uri_comment">#extension http:/*//www.khronos.org/registry/webgl/extensions/URI/ xyz */ enable</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+            <td><pre id="khronos_comment">#extension URI:/*//www.khronos.org/registry/webgl/extensions/URI/ xyz */ enable</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_comment" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>With additional comment blocks</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+            <td><pre id="uri_more">/**/#/**/extension/**/http/**/:/*//www.khronos.org/registry/webgl/extensions/URI/*/enable/*fin*/</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+            <td><pre id="khronos_more">/**/#/**/extension/**/URI/**/:/*//www.khronos.org/registry/webgl/extensions/URI/*/enable/*fin*/</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_more" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>Multiline</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+        <td>
+<pre id="uri_multi">
+  /*
+*/#/*
+*/extension/*
+*/http/*
+*/:/*
+//www.khronos.org/registry/webgl/extensions/URI/
+*/enable/*
+*/
+</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+        <td>
+<pre id="khronos_multi">
+  /*
+*/#/*
+*/extension/*
+*/URI/*
+*/:/*
+//www.khronos.org/registry/webgl/extensions/URI/
+*/enable/*
+*/
+</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_multi" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>As macro</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+            <td><pre id="uri_macro">#ifdef http:/*//www.khronos.org/registry/webgl/extensions/URI/*/
+#endif
+</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+        <td><pre id="khronos_macro">#ifdef URI/*//www.khronos.org/registry/webgl/extensions/URI/*/
+#endif
+</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_macro" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <th>As unknown macro</th>
+        <td><table>
+          <tr>
+            <th>URI</th>
+            <td><pre id="uri_fresh">#ifdef http:/*//www.khronos.org/registry/webgl/extensions/UNKNOWN_EXTENSION/*/
+#endif
+</pre></td>
+          </tr>
+          <tr>
+            <th>Khronos</th>
+        <td><pre id="khronos_fresh">#ifdef _A_FRESH_MACRO/*//www.khronos.org/registry/webgl/extensions/UNKNOWN_EXTENSION/*/
+#endif
+</pre></td>
+          </tr>
+          <tr>
+            <th>JS</th>
+            <td><pre id="js_fresh" style="color: orange">Turn on JavaScript for test results</pre></td>
+          </tr>
+        </table></td>
+      </tr>
+    </table>
+    <script type="text/javascript" src="webgl-uri.js"></script>
+    <script>
+      var tests = ["simple","ws","comment","more","multi","macro","fresh"];
+      var uri_el, khronos_el, js_el;
+      var psrc;
+      for (var i = 0; i &lt; tests.length; i++) {
+        uri_el = document.getElementById("uri_"+tests[i]);
+        khronos_el = document.getElementById("khronos_"+tests[i]);
+        js_el = document.getElementById("js_"+tests[i]);
+
+        psrc = WebGLRenderingContext.prototype.prepareSource(uri_el.innerText);
+        js_el.innerText = psrc;
+        if (psrc==khronos_el.innerText) { js_el.style.color = "green"; }
+        else { js_el.style.color = "red"; }
+      }
+    </script>
+  </tests>
+
+  <history>
+    <revision date="2012/05/15">
+      <change>Initial draft.</change>
+    </revision>
+  </history>
+</draft>
